@@ -34,7 +34,7 @@ export const login = async (req: Request, res: Response) => {
       });
     }
     const { password, ...data } = userExists;
-    const token: string = sign(data, `${JWT_SECRET_KEY}`, { expiresIn: `${JWT_EXPIRES_IN}h` });
+    const token: string = sign(data, `${JWT_SECRET_KEY}`, { expiresIn: JWT_EXPIRES_IN });
     return res.status(200).json({
       code: 200,
       status: "OK",
