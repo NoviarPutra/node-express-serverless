@@ -1,11 +1,11 @@
-import express, { Application, Request, Response } from "express";
-import { config } from "dotenv";
-import router from "./src/modules";
-import morgan from "morgan";
+const express = require("express");
+const { config } = require("dotenv");
+const router = require("./src/modules");
+const morgan = require("morgan");
 
 config();
 
-const app: Application = express();
+const app = express();
 const { PORT } = process.env;
 
 app.use(express.json());
@@ -16,14 +16,14 @@ app.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);
 });
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/", (req, res) => {
   res.send("HALLO ANJING!");
 });
 
 router(app);
 
-app.use("*", (req: Request, res: Response) => {
+app.use("*", (req, res) => {
   return res.status(404).json({ success: false, message: "Not Found" });
 });
 
-export default app;
+module.exports = app;
