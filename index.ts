@@ -1,10 +1,11 @@
-const { config } = require("dotenv");
-const express = require("express");
-const router = require("./src/modules");
+import express, { Application, Request, Response } from "express";
+import { config } from "dotenv";
+import router from "./src/modules";
+// const router = require("./src/modules");
 
 config();
 
-const app = express();
+const app: Application = express();
 const { PORT } = process.env;
 
 app.use(express.json());
@@ -14,13 +15,13 @@ app.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);
 });
 
-app.get("/", (req, res) => {
+app.get("/", (req: Request, res: Response) => {
   res.send("HALLO ANJING!");
 });
 
 router(app);
 
-app.use("*", (req, res) => {
+app.use("*", (req: Request, res: Response) => {
   return res.status(404).json({ success: false, message: "Not Found" });
 });
 
