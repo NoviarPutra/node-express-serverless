@@ -26,4 +26,4 @@ app.use("*", (req: Request, res: Response) => {
   return res.status(404).json({ success: false, message: "Not Found" });
 });
 
-module.exports = app;
+export default app;
