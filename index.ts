@@ -1,7 +1,7 @@
 import express, { Application, Request, Response } from "express";
 import { config } from "dotenv";
 import router from "./src/modules";
-// const router = require("./src/modules");
+import morgan from "morgan";
 
 config();
 
@@ -10,6 +10,7 @@ const { PORT } = process.env;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(morgan("dev"));
 
 app.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);
