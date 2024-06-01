@@ -15,7 +15,7 @@
 
 2. **Install dependencies using pnpm:**
     ```sh
-    pnpm install
+    npm install
     ```
 
 3. **Set up environment variables:**
@@ -23,10 +23,10 @@
 
 4. **Generate Prisma Client:**
     ```sh
-    pnpm prisma generate
+    npm prisma generate
     ```
 
 ### Running the Application
 Untuk memulai server dalam mode dev, gunakan perintah berikut:
 ```sh
-pnpm run dev
+npm run dev
