@@ -46,7 +46,7 @@ model Product {
   stock       Int      @default(0)
   image       String?
   description String?
-  status      Boolean  @default(false)
+  isActive    Boolean  @default(true)
   createdBy   User     @relation(fields: [createdById], references: [id])
   createdById String
   createdAt   DateTime @default(now())

@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "vercel-build": "prisma generate && prisma migrate deploy",
     "start": "node index.j",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "migrate:dev": "npx prisma migrate dev --name"
   },
   "keywords": [],
   "author": "",
