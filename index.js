@@ -11,13 +11,17 @@ const { PORT } = process.env;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
+app.use(express.static("public"));
+
+app.set("view engine", "pug");
+app.set("views", "./src/views");
 
 app.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);
 });
 
-app.get("/", (req, res) => {
-  res.send("HALLO ANJING!");
+app.get("/", (_req, res) => {
+  res.render("index", { title: "Express Serverless", message: "Welcome Anjing" });
 });
 
 router(app);
