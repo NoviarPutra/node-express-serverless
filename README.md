@@ -4,7 +4,6 @@
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/) (v20.x atau lebih baru)
-- [pnpm](https://pnpm.io/) (v9.x atau lebih baru)
 
 ### Installation
 1. **Clone the repository:**
