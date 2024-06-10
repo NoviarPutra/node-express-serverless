@@ -27,6 +27,7 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   Product   Product[]
+  Order     Order[]
 }
 
 model Category {
@@ -38,17 +39,89 @@ model Category {
 }
 
 model Product {
-  id          String   @id @default(uuid())
-  name        String
-  category    Category @relation(fields: [categoryId], references: [id])
-  categoryId  String
-  price       Float
-  stock       Int      @default(0)
-  image       String?
-  description String?
-  isActive    Boolean  @default(true)
-  createdBy   User     @relation(fields: [createdById], references: [id])
-  createdById String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                String              @id @default(uuid())
+  name              String
+  category          Category            @relation(fields: [categoryId], references: [id])
+  categoryId        String
+  price             Float
+  stock             Int                 @default(0)
+  image             String?
+  description       String?
+  isActive          Boolean             @default(true)
+  createdBy         User                @relation(fields: [createdById], references: [id])
+  createdById       String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  OrderDetail       OrderDetail[]
+  TransactionDetail TransactionDetail[]
+}
+
+model Order {
+  id           String        @id @default(uuid())
+  user         User          @relation(fields: [userId], references: [id])
+  userId       String
+  totalAmount  Float
+  orderDate    DateTime      @default(now())
+  status       OrderStatus   @default(PENDING)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  OrderDetails OrderDetail[]
+  Transaction  Transaction[]
+}
+
+model OrderDetail {
+  id        String   @id @default(uuid())
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Transaction {
+  id                String              @id @default(uuid())
+  order             Order               @relation(fields: [orderId], references: [id])
+  orderId           String
+  amount            Float
+  transactionDate   DateTime            @default(now())
+  status            TransactionStatus   @default(PENDING)
+  paymentMethod     PaymentMethod
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  TransactionDetail TransactionDetail[]
+}
+
+model TransactionDetail {
+  id            String      @id @default(uuid())
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  transactionId String
+  product       Product     @relation(fields: [productId], references: [id])
+  productId     String
+  quantity      Int
+  price         Float
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELED
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  PAYPAL
+  BANK_TRANSFER
 }
