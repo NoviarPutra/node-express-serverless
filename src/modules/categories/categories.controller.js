@@ -20,6 +20,13 @@ module.exports = {
         .status(200)
         .json({ code: 200, status: "OK", ...pagination, data: categories });
     } catch (error) {
+      if (error.message === "Page and limit must be positive integers") {
+        return res.status(400).json({
+          code: 400,
+          status: "BAD REQUEST",
+          message: error.message,
+        });
+      }
       console.log(error);
       return res
         .status(500)
