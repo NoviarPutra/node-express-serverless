@@ -1,9 +1,13 @@
 const { z } = require("zod");
 
 module.exports = {
-  orderSchema: z.object({
-    userId: z.string(),
-    productId: z.string(),
-    quantity: z.number().positive(),
-  }),
+  orderSchema: z
+    .array(
+      z.object({
+        productId: z.string().uuid(),
+        quantity: z.number().int().positive(),
+        price: z.number().positive(),
+      })
+    )
+    .min(1, "Order details cannot be empty"),
 };
