@@ -1,20 +1,37 @@
 const { PrismaClient } = require("@prisma/client");
 const { productSchema } = require("./products.schema");
 const { ZodError } = require("zod");
+const { getPaginationParams, getPaginationMetadata } = require("../../utils/pagination");
 
 const prisma = new PrismaClient();
 module.exports = {
-  getAll: async (_req, res) => {
+  getAll: async (req, res) => {
     try {
+      const { skip, take, pageNumber, limitNumber } = getPaginationParams(req.query);
+
+      const totalProducts = await prisma.product.count();
+
       const products = await prisma.product.findMany({
+        skip,
+        take,
         orderBy: { name: "asc" },
         include: {
           category: { select: { id: true, name: true } },
           createdBy: { select: { id: true, name: true, role: true } },
         },
       });
-      return res.status(200).json({ code: 200, status: "OK", data: products });
+
+      const pagination = getPaginationMetadata(totalProducts, pageNumber, limitNumber);
+
+      return res.status(200).json({ code: 200, status: "OK", ...pagination, data: products });
     } catch (error) {
+      if (error.message === "Page and limit must be positive integers") {
+        return res.status(400).json({
+          code: 400,
+          status: "BAD REQUEST",
+          message: error.message,
+        });
+      }
       console.log(error);
       return res
         .status(500)

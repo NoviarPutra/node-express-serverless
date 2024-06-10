@@ -1,13 +1,24 @@
 const { PrismaClient } = require("@prisma/client");
 const { ZodError } = require("zod");
 const { categorySchema } = require("./categories.schema");
+const { getPaginationParams, getPaginationMetadata } = require("../../utils/pagination");
 
 const prisma = new PrismaClient();
 module.exports = {
-  getAll: async (_req, res) => {
+  getAll: async (req, res) => {
     try {
-      const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
-      return res.status(200).json({ code: 200, status: "OK", data: categories });
+      const { skip, take, pageNumber, limitNumber } = getPaginationParams(req.query);
+
+      const totalCategories = await prisma.category.count();
+      const categories = await prisma.category.findMany({
+        skip,
+        take,
+        orderBy: { name: "asc" },
+      });
+      const pagination = getPaginationMetadata(totalCategories, pageNumber, limitNumber);
+      return res
+        .status(200)
+        .json({ code: 200, status: "OK", ...pagination, data: categories });
     } catch (error) {
       console.log(error);
       return res
