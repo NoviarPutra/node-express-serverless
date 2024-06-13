@@ -46,7 +46,7 @@ const uploadFile = async (req, res) => {
         .resize(800)
         .toFormat("jpeg", { quality: 70 })
         .toBuffer();
-      await b2.authorize();
+      const auth = await b2.authorize();
       const uploadUrlResponse = await b2.getUploadUrl({
         bucketId: BUCKET_ID,
       });
@@ -56,17 +56,31 @@ const uploadFile = async (req, res) => {
       }
       const uploadedResponse = await b2.uploadFile({
         uploadUrl: uploadUrl,
-        authorizationToken: authorizationToken,
         uploadAuthToken: authorizationToken,
         fileName: filename,
         data: compressBuffer,
       });
       const { fileId, fileName } = uploadedResponse.data;
+
+      const downloadUrlResponse = await b2.getDownloadAuthorization({
+        bucketId: BUCKET_ID,
+        fileNamePrefix: fileName,
+        validDurationInSeconds: 3600,
+      });
+      const { authorizationToken: authToken, fileNamePrefix } = downloadUrlResponse.data;
+
+      const publicPath = `${auth.data.downloadUrl}/file/images-budiawan/${fileNamePrefix}`;
+      const privatePath = `${auth.data.downloadUrl}/file/images-budiawan/${fileNamePrefix}?Authorization=${authToken}`;
+
       return res.status(201).json({
         code: 201,
         status: "CREATED",
         message: "File uploaded successfully",
-        data: { fileId, fileName },
+        data: {
+          fileId,
+          fileName,
+          path: { publicPath, privatePath, note: "Duration is 1 hour for privatePath" },
+        },
       });
     } catch (error) {
       console.log(error);
