@@ -11,7 +11,6 @@ const { PORT } = process.env;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
-// app.use(express.static("public"));
 
 app.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);
