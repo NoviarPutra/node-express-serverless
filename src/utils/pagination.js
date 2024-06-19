@@ -1,26 +1,36 @@
 module.exports = {
   getPaginationParams: (query) => {
-    const { page = 1, limit = 10 } = query;
-    const pageNumber = parseInt(page);
-    const limitNumber = parseInt(limit);
+    let { page, limit, skip } = query;
 
-    if (isNaN(pageNumber) || isNaN(limitNumber) || pageNumber < 1 || limitNumber < 1) {
-      throw new Error("Page and limit must be positive integers");
+    page = page ? parseInt(page, 10) : undefined;
+    limit = limit ? parseInt(limit, 10) : 10;
+    skip = skip ? parseInt(skip, 10) : undefined;
+
+    if (isNaN(limit) || limit < 1) {
+      throw new Error("Limit must be a positive integer");
     }
 
-    const skip = (pageNumber - 1) * limitNumber;
-    const take = limitNumber;
+    if (page !== undefined) {
+      if (isNaN(page) || page < 1) {
+        throw new Error("Page must be a positive integer");
+      }
+      skip = (page - 1) * limit;
+    }
 
-    return { skip, take, pageNumber, limitNumber };
+    if (skip !== undefined && (isNaN(skip) || skip < 0)) {
+      throw new Error("Skip must be a non-negative integer");
+    }
+
+    return { skip: skip || 0, take: limit, pageNumber: page || 1, limitNumber: limit };
   },
 
   getPaginationMetadata: (totalItems, pageNumber, limitNumber) => {
     const totalPages = Math.ceil(totalItems / limitNumber);
     return {
-      totalItems,
-      totalPages,
-      currentPage: pageNumber,
-      pageSize: limitNumber,
+      total: totalItems,
+      total_pages: totalPages,
+      page: pageNumber,
+      limit: limitNumber,
     };
   },
 };
