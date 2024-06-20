@@ -42,7 +42,12 @@ module.exports = {
       }
       return res.status(200).json({ code: 200, status: "OK", ...pagination, data: products });
     } catch (error) {
-      if (error.message === "Page and limit must be positive integers") {
+      if (
+        error.message === "Page and limit must be positive integers" ||
+        error.message === "Limit must be a positive integer" ||
+        error.message === "Page must be a positive integer" ||
+        error.message === "Skip must be a non-negative integer"
+      ) {
         return res.status(400).json({
           code: 400,
           status: "BAD REQUEST",
