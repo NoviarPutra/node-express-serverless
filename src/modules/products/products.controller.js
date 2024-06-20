@@ -1,9 +1,16 @@
+const B2 = require("backblaze-b2");
 const { PrismaClient } = require("@prisma/client");
 const { productSchema } = require("./products.schema");
 const { ZodError } = require("zod");
 const { getPaginationParams, getPaginationMetadata } = require("../../utils/pagination");
 
 const prisma = new PrismaClient();
+const { BUCKET_ID, BUCKET_KEY_ID, BUCKET_APP_KEY } = process.env;
+
+const b2 = new B2({
+  applicationKeyId: BUCKET_KEY_ID,
+  applicationKey: BUCKET_APP_KEY,
+});
 module.exports = {
   getAll: async (req, res) => {
     try {
@@ -22,7 +29,17 @@ module.exports = {
       });
 
       const pagination = getPaginationMetadata(totalProducts, pageNumber, limitNumber);
-
+      const authBackblaze = await b2.authorize();
+      for (const product of products) {
+        const downloadUrlResponse = await b2.getDownloadAuthorization({
+          bucketId: BUCKET_ID,
+          fileNamePrefix: product.image,
+          validDurationInSeconds: 3600,
+        });
+        const { authorizationToken: token, fileNamePrefix } = downloadUrlResponse.data;
+        const url = `${authBackblaze.data.downloadUrl}/file/images-budiawan/${fileNamePrefix}?Authorization=${token}`;
+        product.image = url;
+      }
       return res.status(200).json({ code: 200, status: "OK", ...pagination, data: products });
     } catch (error) {
       if (error.message === "Page and limit must be positive integers") {
@@ -37,7 +54,7 @@ module.exports = {
         .status(500)
         .json({ code: 500, status: "INTERNAL SERVER ERROR", message: "Something went wrong" });
     } finally {
-      prisma.$disconnect();
+      await prisma.$disconnect();
     }
   },
 

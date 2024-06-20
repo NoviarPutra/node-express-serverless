@@ -3,7 +3,7 @@ const multer = require("multer");
 const { checkFileType } = require("../../utils/fileType");
 const sharp = require("sharp");
 
-const { BUCKET_NAME, BUCKET_ID, BUCKET_KEY_ID, BUCKET_APP_KEY } = process.env;
+const { BUCKET_ID, BUCKET_KEY_ID, BUCKET_APP_KEY } = process.env;
 
 const b2 = new B2({
   applicationKeyId: BUCKET_KEY_ID,
