@@ -38,15 +38,15 @@ module.exports = {
       return res.status(200).json({
         code: 200,
         status: "OK",
-        message: "User found",
-        data: userExists,
+        message: "Login successfully!",
+        data: data,
         token: token,
       });
     } catch (error) {
       if (error instanceof ZodError) {
         return res.status(400).json({
           code: 400,
-          status: "BA",
+          status: "BAD REQUEST",
           message: error.issues,
         });
       }
@@ -57,7 +57,7 @@ module.exports = {
         message: "Something went wrong",
       });
     } finally {
-      prisma.$disconnect();
+      await prisma.$disconnect();
     }
   },
   register: async (req, res) => {
