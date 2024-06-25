@@ -28,6 +28,7 @@ model User {
   updatedAt DateTime  @updatedAt
   Product   Product[]
   Order     Order[]
+  Cart      Cart[]
 }
 
 model Category {
@@ -54,6 +55,7 @@ model Product {
   updatedAt         DateTime            @updatedAt
   OrderDetail       OrderDetail[]
   TransactionDetail TransactionDetail[]
+  Cart              Cart[]
 }
 
 model Order {
@@ -104,6 +106,18 @@ model TransactionDetail {
   price         Float
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+}
+
+model Cart {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum OrderStatus {
