@@ -15,7 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^5.15.0",
+    "@prisma/client": "^5.16.0",
     "backblaze-b2": "^1.7.0",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
@@ -28,6 +28,6 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.2",
-    "prisma": "^5.15.0"
+    "prisma": "^5.16.0"
   }
 }
