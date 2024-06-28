@@ -4,7 +4,8 @@ CREATE TABLE "Cart" (
     "userId" STRING NOT NULL,
     "productId" STRING NOT NULL,
     "quantity" INT4 NOT NULL,
-    "price" FLOAT8 NOT NULL,
+    "unitPrice" FLOAT8 NOT NULL,
+    "total" FLOAT8 NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

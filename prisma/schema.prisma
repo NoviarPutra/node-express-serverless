@@ -115,7 +115,8 @@ model Cart {
   product   Product  @relation(fields: [productId], references: [id])
   productId String
   quantity  Int
-  price     Float
+  unitPrice Float
+  total     Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
