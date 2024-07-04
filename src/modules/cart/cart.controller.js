@@ -1,15 +1,15 @@
-// const B2 = require("backblaze-b2");
+const B2 = require("backblaze-b2");
 const { PrismaClient } = require("@prisma/client");
 const { getPaginationParams, getPaginationMetadata } = require("../../utils/pagination");
 const { insertCartSchema } = require("./cart.schema");
 const { ZodError } = require("zod");
 
 const prisma = new PrismaClient();
-// const { BUCKET_ID, BUCKET_KEY_ID, BUCKET_APP_KEY } = process.env;
-// const b2 = new B2({
-//   applicationKeyId: BUCKET_KEY_ID,
-//   applicationKey: BUCKET_APP_KEY,
-// });
+const { BUCKET_ID, BUCKET_KEY_ID, BUCKET_APP_KEY } = process.env;
+const b2 = new B2({
+  applicationKeyId: BUCKET_KEY_ID,
+  applicationKey: BUCKET_APP_KEY,
+});
 
 module.exports = {
   getCartByUserId: async (req, res) => {
@@ -22,22 +22,22 @@ module.exports = {
         take,
         orderBy: { createdAt: "asc" },
         where: { userId: req.user.id },
-        // include: { product: true },
+        include: { product: true },
       });
       const totalPrice = cart.reduce((acc, item) => acc + item.total, 0);
       const pagination = getPaginationMetadata(totalCart, pageNumber, limitNumber);
-      // const products = cart.map((cart) => cart.product);
-      // const authBackblaze = await b2.authorize();
-      // for (const product of products) {
-      //   const downloadUrlResponse = await b2.getDownloadAuthorization({
-      //     bucketId: BUCKET_ID,
-      //     fileNamePrefix: product.image,
-      //     validDurationInSeconds: 3600,
-      //   });
-      //   const { authorizationToken: token, fileNamePrefix } = downloadUrlResponse.data;
-      //   const url = `${authBackblaze.data.downloadUrl}/file/images-budiawan/${fileNamePrefix}?Authorization=${token}`;
-      //   product.image = url;
-      // }
+      const products = cart.map((cart) => cart.product);
+      const authBackblaze = await b2.authorize();
+      for (const product of products) {
+        const downloadUrlResponse = await b2.getDownloadAuthorization({
+          bucketId: BUCKET_ID,
+          fileNamePrefix: product.image,
+          validDurationInSeconds: 3600,
+        });
+        const { authorizationToken: token, fileNamePrefix } = downloadUrlResponse.data;
+        const url = `${authBackblaze.data.downloadUrl}/file/images-budiawan/${fileNamePrefix}?Authorization=${token}`;
+        product.image = url;
+      }
       return res
         .status(200)
         .json({ code: 200, status: "OK", ...pagination, totalPrice, data: cart });
