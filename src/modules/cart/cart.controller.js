@@ -18,14 +18,14 @@ module.exports = {
       const { skip, take, pageNumber, limitNumber } = getPaginationParams(req.query);
       const totalCart = await prisma.cart.count({ where: { userId: req.user.id } });
       const cart = await prisma.cart.findMany({
-        skip,
-        take,
+        // skip,
+        // take,
         orderBy: { createdAt: "asc" },
         where: { userId: req.user.id },
         include: { product: true },
       });
       const totalPrice = cart.reduce((acc, item) => acc + item.total, 0);
-      const pagination = getPaginationMetadata(totalCart, pageNumber, limitNumber);
+      // const pagination = getPaginationMetadata(totalCart, pageNumber, limitNumber);
       const products = cart.map((cart) => cart.product);
       const authBackblaze = await b2.authorize();
       for (const product of products) {
@@ -38,9 +38,13 @@ module.exports = {
         const url = `${authBackblaze.data.downloadUrl}/file/images-budiawan/${fileNamePrefix}?Authorization=${token}`;
         product.image = url;
       }
-      return res
-        .status(200)
-        .json({ code: 200, status: "OK", ...pagination, totalPrice, data: cart });
+      return res.status(200).json({
+        code: 200,
+        status: "OK",
+        // ...pagination,
+        totalPrice,
+        data: cart,
+      });
     } catch (error) {
       if (
         error.message === "Page and limit must be positive integers" ||
