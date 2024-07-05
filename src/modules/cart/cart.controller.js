@@ -1,63 +1,41 @@
-const B2 = require("backblaze-b2");
 const { PrismaClient } = require("@prisma/client");
-const { getPaginationParams, getPaginationMetadata } = require("../../utils/pagination");
 const { insertCartSchema } = require("./cart.schema");
 const { ZodError } = require("zod");
+const { parseImgUrl } = require("../../utils/parseImgUrl");
 
 const prisma = new PrismaClient();
-const { BUCKET_ID, BUCKET_KEY_ID, BUCKET_APP_KEY } = process.env;
-const b2 = new B2({
-  applicationKeyId: BUCKET_KEY_ID,
-  applicationKey: BUCKET_APP_KEY,
-});
 
 module.exports = {
   getCartByUserId: async (req, res) => {
     try {
-      // const { userId } = req.params;
-      const { skip, take, pageNumber, limitNumber } = getPaginationParams(req.query);
-      const totalCart = await prisma.cart.count({ where: { userId: req.user.id } });
-      const cart = await prisma.cart.findMany({
-        // skip,
-        // take,
-        orderBy: { createdAt: "asc" },
-        where: { userId: req.user.id },
-        include: { product: true },
-      });
-      const totalPrice = cart.reduce((acc, item) => acc + item.total, 0);
-      // const pagination = getPaginationMetadata(totalCart, pageNumber, limitNumber);
-      const products = cart.map((cart) => cart.product);
-      const authBackblaze = await b2.authorize();
-      for (const product of products) {
-        const downloadUrlResponse = await b2.getDownloadAuthorization({
-          bucketId: BUCKET_ID,
-          fileNamePrefix: product.image,
-          validDurationInSeconds: 3600,
-        });
-        const { authorizationToken: token, fileNamePrefix } = downloadUrlResponse.data;
-        const url = `${authBackblaze.data.downloadUrl}/file/images-budiawan/${fileNamePrefix}?Authorization=${token}`;
-        product.image = url;
+      const userId = req.user.id;
+      const cart = await prisma.$queryRaw`
+        SELECT 
+          c.id,
+          c."userId",
+          c."productId",
+          p.name AS "productName",
+          p.image AS "productImage",
+          p.price AS "productPrice",
+          c.quantity AS "productQuantity",
+          (p.price * c.quantity::FLOAT) AS "totalPrice",
+          c.note AS "note"  
+        FROM "Cart" c
+        INNER JOIN "Product" p ON c."productId" = p.id
+        WHERE c."userId" = ${userId}
+      `;
+
+      for (const item of cart) {
+        item.productImage = await parseImgUrl({ fileName: item.productImage });
       }
+
       return res.status(200).json({
         code: 200,
         status: "OK",
-        // ...pagination,
-        totalPrice,
+        message: "Cart retrieved successfully",
         data: cart,
       });
     } catch (error) {
-      if (
-        error.message === "Page and limit must be positive integers" ||
-        error.message === "Limit must be a positive integer" ||
-        error.message === "Page must be a positive integer" ||
-        error.message === "Skip must be a non-negative integer"
-      ) {
-        return res.status(400).json({
-          code: 400,
-          status: "BAD REQUEST",
-          message: error.message,
-        });
-      }
       console.log(error);
       return res.status(500).json({
         code: 500,
